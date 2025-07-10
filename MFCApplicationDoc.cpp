@@ -149,3 +149,16 @@ BOOL CMFCApplicationDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	UpdateAllViews(NULL); // 화면 갱신 요청
 	return TRUE;
 }
+
+BOOL CMFCApplicationDoc::OnSaveDocument(LPCTSTR lpszPathName)
+{
+	if (m_image.IsNull())
+		return FALSE; // 저장할 이미지가 없음
+
+	HRESULT hr = m_image.Save(lpszPathName); // 파일로 저장
+	if (FAILED(hr)) {
+		AfxMessageBox(_T("이미지 저장 실패"));
+		return FALSE;
+	}
+	return TRUE;
+}
