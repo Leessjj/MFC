@@ -10,7 +10,8 @@ class CMFCApplicationView : public CView
 protected: // serialization에서만 만들어집니다.
 	CMFCApplicationView() noexcept;
 	DECLARE_DYNCREATE(CMFCApplicationView)
-
+	enum ChannelType { CHANNEL_ORG, CHANNEL_R, CHANNEL_G, CHANNEL_B };
+	ChannelType m_selectedChannel = CHANNEL_ORG;
 // 특성입니다.
 public:
 	CMFCApplicationDoc* GetDocument() const;
@@ -43,6 +44,10 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnViewChannelR();
+	afx_msg void OnViewChannelG();
+	afx_msg void OnViewChannelB();
 };
 
 #ifndef _DEBUG  // MFCApplicationView.cpp의 디버그 버전

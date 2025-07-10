@@ -205,3 +205,57 @@ void CMFCApplicationDoc::OnImageFlipVertical()
 	UpdateAllViews(NULL); // 화면 새로 그리기
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
+
+void CMFCApplicationDoc::ExtractRGBChannel(char channel)
+{
+	int width = m_image.GetWidth();
+	int height = m_image.GetHeight();
+
+	// 채널별 이미지 초기화
+	if (channel == 'R') {
+		if (!m_channelR.IsNull()) m_channelR.Destroy();
+		m_channelR.Create(width, height, 24);
+	}
+	if (channel == 'G') {
+		if (!m_channelG.IsNull()) m_channelG.Destroy();
+		m_channelG.Create(width, height, 24);
+	}
+	if (channel == 'B') {
+		if (!m_channelB.IsNull()) m_channelB.Destroy();
+		m_channelB.Create(width, height, 24);
+	}
+
+	for (int y = 0; y < height; ++y)
+	{
+		BYTE* pSrc = (BYTE*)m_image.GetPixelAddress(0, y);
+		BYTE* pDst = nullptr;
+
+		if (channel == 'R') pDst = (BYTE*)m_channelR.GetPixelAddress(0, y);
+		if (channel == 'G') pDst = (BYTE*)m_channelG.GetPixelAddress(0, y);
+		if (channel == 'B') pDst = (BYTE*)m_channelB.GetPixelAddress(0, y);
+
+		for (int x = 0; x < width; ++x)
+		{
+			BYTE b = pSrc[x * 3 + 0];
+			BYTE g = pSrc[x * 3 + 1];
+			BYTE r = pSrc[x * 3 + 2];
+
+			if (channel == 'R') {
+				pDst[x * 3 + 0] = 0; // B
+				pDst[x * 3 + 1] = 0; // G
+				pDst[x * 3 + 2] = r; // R만 남김
+			}
+			if (channel == 'G') {
+				pDst[x * 3 + 0] = 0;
+				pDst[x * 3 + 1] = g;
+				pDst[x * 3 + 2] = 0;
+			}
+			if (channel == 'B') {
+				pDst[x * 3 + 0] = b;
+				pDst[x * 3 + 1] = 0;
+				pDst[x * 3 + 2] = 0;
+			}
+		}
+	}
+}
+

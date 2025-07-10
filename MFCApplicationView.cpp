@@ -29,6 +29,9 @@ BEGIN_MESSAGE_MAP(CMFCApplicationView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMFCApplicationView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_COMMAND(RChannel, &CMFCApplicationView::OnViewChannelR)
+	ON_COMMAND(GChannel, &CMFCApplicationView::OnViewChannelG)
+	ON_COMMAND(BChannel, &CMFCApplicationView::OnViewChannelB)
 END_MESSAGE_MAP()
 
 // CMFCApplicationView 생성/소멸
@@ -55,14 +58,31 @@ BOOL CMFCApplicationView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CMFCApplicationView::OnDraw(CDC* pDC)
 {
-	CMFCApplicationDoc* pDoc = GetDocument();
+	/*CMFCApplicationDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc->m_image.IsNull()) // 이미지가 있으면
 	{
 		pDoc->m_image.Draw(pDC->GetSafeHdc(), 0, 0); // 화면 출력
-	}
+	}*/
 
-	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
+	CMFCApplicationDoc* pDoc = GetDocument();
+	switch (m_selectedChannel) {
+	case CHANNEL_R:
+		if (!pDoc->m_channelR.IsNull())
+			pDoc->m_channelR.Draw(pDC->GetSafeHdc(), 0, 0);
+		break;
+	case CHANNEL_G:
+		if (!pDoc->m_channelG.IsNull())
+			pDoc->m_channelG.Draw(pDC->GetSafeHdc(), 0, 0);
+		break;
+	case CHANNEL_B:
+		if (!pDoc->m_channelB.IsNull())
+			pDoc->m_channelB.Draw(pDC->GetSafeHdc(), 0, 0);
+		break;
+	default:
+		if (!pDoc->m_image.IsNull())
+			pDoc->m_image.Draw(pDC->GetSafeHdc(), 0, 0);
+	}
 }
 
 
@@ -128,3 +148,22 @@ CMFCApplicationDoc* CMFCApplicationView::GetDocument() const // 디버그되지 
 
 
 // CMFCApplicationView 메시지 처리기
+
+void CMFCApplicationView::OnViewChannelR()
+{
+	m_selectedChannel = CHANNEL_R;
+	GetDocument()->ExtractRGBChannel('R');
+	Invalidate();
+}
+void CMFCApplicationView::OnViewChannelG()
+{
+	m_selectedChannel = CHANNEL_G;
+	GetDocument()->ExtractRGBChannel('G');
+	Invalidate();
+}
+void CMFCApplicationView::OnViewChannelB()
+{
+	m_selectedChannel = CHANNEL_B;
+	GetDocument()->ExtractRGBChannel('B');
+	Invalidate();
+}
