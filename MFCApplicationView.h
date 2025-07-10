@@ -1,57 +1,87 @@
-﻿
-// MFCApplicationView.h: CMFCApplicationView 클래스의 인터페이스
+﻿// MFCApplicationView.h: CMFCApplicationView 클래스의 인터페이스
 //
 
 #pragma once
 
+#include <vector>  // 추가
 
 class CMFCApplicationView : public CView
 {
 protected: // serialization에서만 만들어집니다.
-	CMFCApplicationView() noexcept;
-	DECLARE_DYNCREATE(CMFCApplicationView)
-	enum ChannelType { CHANNEL_ORG, CHANNEL_R, CHANNEL_G, CHANNEL_B };
-	ChannelType m_selectedChannel = CHANNEL_ORG;
-// 특성입니다.
-public:
-	CMFCApplicationDoc* GetDocument() const;
+    CMFCApplicationView() noexcept;
+    DECLARE_DYNCREATE(CMFCApplicationView)
 
-// 작업입니다.
+    // 채널 타입
+    enum ChannelType { CHANNEL_ORG, CHANNEL_R, CHANNEL_G, CHANNEL_B };
+    ChannelType m_selectedChannel = CHANNEL_ORG;
+
+    // 그림판 도형 타입
+    enum DrawType { DRAW_NONE, DRAW_LINE, DRAW_RECT, DRAW_ELLIPSE };
+
+    //도형 정보 저장용 구조체
+    struct DrawShape {
+        DrawType type;
+        CPoint start;
+        CPoint end;
+    };
+
+    //멤버 변수
+    DrawType m_drawType = DRAW_NONE;         // 현재 선택된 도형 종류
+    BOOL m_bDrawing = FALSE;                 // 드래그 중 여부
+    CPoint m_startPoint;                     // 드래그 시작점
+    CPoint m_endPoint;                       // 드래그 끝점
+    std::vector<DrawShape> m_shapes;         // 그려진 도형 리스트
+
+    // 특성입니다.
+public:
+    CMFCApplicationDoc* GetDocument() const;
+
+    // 작업입니다.
 public:
 
-// 재정의입니다.
+    // 재정의입니다.
 public:
-	virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+    virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
+    virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+    virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+    virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
+    virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
-// 구현입니다.
+    // 구현입니다.
 public:
-	virtual ~CMFCApplicationView();
+    virtual ~CMFCApplicationView();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+    virtual void AssertValid() const;
+    virtual void Dump(CDumpContext& dc) const;
 #endif
 
 protected:
 
-// 생성된 메시지 맵 함수
+    // 생성된 메시지 맵 함수
 protected:
-	afx_msg void OnFilePrintPreview();
-	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	DECLARE_MESSAGE_MAP()
+    afx_msg void OnFilePrintPreview();
+    afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+    afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
+    DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnViewChannelR();
-	afx_msg void OnViewChannelG();
-	afx_msg void OnViewChannelB();
+    afx_msg void OnViewChannelR();
+    afx_msg void OnViewChannelG();
+    afx_msg void OnViewChannelB();
+
+    // 그림판 기능 함수 선언
+    afx_msg void OnDrawLine();
+    afx_msg void OnDrawRect();
+    afx_msg void OnDrawEllipse();
+
+    afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+    afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+    afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // MFCApplicationView.cpp의 디버그 버전
 inline CMFCApplicationDoc* CMFCApplicationView::GetDocument() const
-   { return reinterpret_cast<CMFCApplicationDoc*>(m_pDocument); }
+{
+    return reinterpret_cast<CMFCApplicationDoc*>(m_pDocument);
+}
 #endif
-
