@@ -40,6 +40,7 @@ BEGIN_MESSAGE_MAP(CMFCApplicationView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
+	ON_COMMAND(ID_VIEW_SAVEASIMAGE, &CMFCApplicationView::OnViewSaveasimage)
 END_MESSAGE_MAP()
 
 // CMFCApplicationView 생성/소멸
@@ -267,3 +268,37 @@ void CMFCApplicationView::OnLButtonUp(UINT nFlags, CPoint point)
 		Invalidate(FALSE); // 최종 도형 그리기
 	 }
 }
+
+void CMFCApplicationView::OnViewSaveasimage()
+{
+	// 파일 다이얼로그 띄움
+	CFileDialog dlg(FALSE, _T("bmp"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("BMP Files (*.bmp)|*.bmp||"));
+	if (dlg.DoModal() == IDOK)
+	{
+		CString filePath = dlg.GetPathName();
+		// 화면 저장 코드 바로 작성!
+		CRect rect;
+		GetClientRect(&rect);
+		CDC memDC;
+		CBitmap bitmap;
+
+		CDC* pDC = GetDC();
+		memDC.CreateCompatibleDC(pDC);
+		bitmap.CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+		CBitmap* pOldBitmap = memDC.SelectObject(&bitmap);
+
+		memDC.BitBlt(0, 0, rect.Width(), rect.Height(), pDC, 0, 0, SRCCOPY);
+
+		// 저장
+		CImage image;
+		image.Attach((HBITMAP)bitmap.Detach());
+		image.Save(filePath, Gdiplus::ImageFormatBMP);
+		image.Detach();
+
+		memDC.SelectObject(pOldBitmap);
+		ReleaseDC(pDC);
+	}
+}
+
+
+
