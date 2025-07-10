@@ -12,14 +12,16 @@ protected: // serialization에서만 만들어집니다.
 	CMFCApplicationDoc() noexcept;
 	DECLARE_DYNCREATE(CMFCApplicationDoc)
 
-// 특성입니다.
+	// 특성입니다.
 public:
 	CImage m_image;
 
-// 작업입니다.
+	// 작업입니다.
 public:
+	void OnImageFlipHorizontal();
+	void OnImageFlipVertical();
 
-// 재정의입니다.
+	// 재정의입니다.
 public:
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
@@ -30,7 +32,7 @@ public:
 	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
 #endif // SHARED_HANDLERS
 
-// 구현입니다.
+	// 구현입니다.
 public:
 	virtual ~CMFCApplicationDoc();
 #ifdef _DEBUG
@@ -40,7 +42,7 @@ public:
 
 protected:
 
-// 생성된 메시지 맵 함수
+	// 생성된 메시지 맵 함수
 protected:
 	DECLARE_MESSAGE_MAP()
 

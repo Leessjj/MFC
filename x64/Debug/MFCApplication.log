@@ -1,12 +1,5 @@
-﻿  pch.cpp
-  ClassView.cpp
-  FileView.cpp
-  MainFrm.cpp
-  MFCApplication.cpp
+﻿  MFCApplication.cpp
   MFCApplicationDoc.cpp
   MFCApplicationView.cpp
-  OutputWnd.cpp
-  PropertiesWnd.cpp
-  ViewTree.cpp
   코드를 생성하고 있습니다...
   MFCApplication.vcxproj -> C:\Users\USER\source\repos\MFCApplication\x64\Debug\MFCApplication.exe

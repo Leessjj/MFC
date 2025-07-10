@@ -23,6 +23,8 @@
 IMPLEMENT_DYNCREATE(CMFCApplicationDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CMFCApplicationDoc, CDocument)
+	ON_COMMAND(ID_IMAGE_FLIP_HORIZONTAL, &CMFCApplicationDoc::OnImageFlipHorizontal)
+	ON_COMMAND(ID_IMAGE_FLIP_VERTICAL, &CMFCApplicationDoc::OnImageFlipVertical)
 END_MESSAGE_MAP()
 
 
@@ -161,4 +163,45 @@ BOOL CMFCApplicationDoc::OnSaveDocument(LPCTSTR lpszPathName)
 		return FALSE;
 	}
 	return TRUE;
+}
+void CMFCApplicationDoc::OnImageFlipHorizontal()
+{
+	if (m_image.IsNull()) return;
+
+	int width = m_image.GetWidth();
+	int height = m_image.GetHeight();
+
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width / 2; ++x)
+		{
+			COLORREF left = m_image.GetPixel(x, y);
+			COLORREF right = m_image.GetPixel(width - 1 - x, y);
+			m_image.SetPixel(x, y, right);
+			m_image.SetPixel(width - 1 - x, y, left);
+		}
+	}
+	UpdateAllViews(NULL); // 화면 새로 그리기
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+}
+
+void CMFCApplicationDoc::OnImageFlipVertical()
+{
+	if (m_image.IsNull()) return;
+
+	int width = m_image.GetWidth();
+	int height = m_image.GetHeight();
+
+	for (int y = 0; y < height / 2; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			COLORREF top = m_image.GetPixel(x, y);
+			COLORREF bottom = m_image.GetPixel(x, height - 1 - y);
+			m_image.SetPixel(x, y, bottom);
+			m_image.SetPixel(x, height - 1 - y, top);
+		}
+	}
+	UpdateAllViews(NULL); // 화면 새로 그리기
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
