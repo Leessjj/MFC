@@ -15,14 +15,15 @@ protected: // serialization에서만 만들어집니다.
 	// 특성입니다.
 public:
 	CImage m_image;
-	CImage m_channelR;     
-	CImage m_channelG;    
+	CImage m_channelR;
+	CImage m_channelG;
 	CImage m_channelB;
 	// 작업입니다.
 public:
 	void OnImageFlipHorizontal();
 	void OnImageFlipVertical();
 	void ExtractRGBChannel(char channel);
+
 
 	// 재정의입니다.
 public:

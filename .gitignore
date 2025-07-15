@@ -1,0 +1,22 @@
+# 빌드 폴더
+Debug/
+Release/
+x64/Debug/
+x64/Release/
+
+# 빌드 산출물
+*.obj
+*.pdb
+*.ilk
+*.log
+*.tlog
+*.aps
+*.idb
+*.pch
+
+# 사용자별 임시파일
+*.suo
+*.user
+*.VC.db
+*.opendb
+*.cache

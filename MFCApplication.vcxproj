@@ -190,6 +190,7 @@
     <ClInclude Include="MFCApplication.h" />
     <ClInclude Include="MFCApplicationDoc.h" />
     <ClInclude Include="MFCApplicationView.h" />
+    <ClInclude Include="MySocket.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PropertiesWnd.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="MFCApplication.cpp" />
     <ClCompile Include="MFCApplicationDoc.cpp" />
     <ClCompile Include="MFCApplicationView.cpp" />
+    <ClCompile Include="MySocket.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

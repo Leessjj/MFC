@@ -33,6 +33,9 @@ BEGIN_MESSAGE_MAP(CMFCApplicationView, CView)
 	ON_COMMAND(GChannel, &CMFCApplicationView::OnViewChannelG)
 	ON_COMMAND(BChannel, &CMFCApplicationView::OnViewChannelB)
 
+	ON_COMMAND(ID_IMAGE_FLIP_HORIZONTAL, &CMFCApplicationView::OnFlipHorizontal)
+	ON_COMMAND(ID_IMAGE_FLIP_VERTICAL, &CMFCApplicationView::OnFlipVertical)
+
 	ON_COMMAND(ID_DRAW_LINE, &CMFCApplicationView::OnDrawLine)
 	ON_COMMAND(ID_DRAW_RECT, &CMFCApplicationView::OnDrawRect)
 	ON_COMMAND(ID_DRAW_ELLIPSE, &CMFCApplicationView::OnDrawEllipse)
@@ -41,6 +44,8 @@ BEGIN_MESSAGE_MAP(CMFCApplicationView, CView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_COMMAND(ID_VIEW_SAVEASIMAGE, &CMFCApplicationView::OnViewSaveasimage)
+
+	ON_MESSAGE(WM_APP + 1, &CMFCApplicationView::OnSocketTrigger)
 END_MESSAGE_MAP()
 
 // CMFCApplicationView 생성/소멸
@@ -59,7 +64,12 @@ BOOL CMFCApplicationView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
-
+	if (!m_serverSocket.Create(22345)) { // 포트는 원하는 값
+		AfxMessageBox(_T("소켓 생성 실패"));
+	}
+	else
+		m_serverSocket.Listen();
+	m_serverSocket.SetNotifyWnd(this->m_hWnd);
 	return CView::PreCreateWindow(cs);
 }
 
@@ -266,7 +276,7 @@ void CMFCApplicationView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_shapes.push_back(shape);
 
 		Invalidate(FALSE); // 최종 도형 그리기
-	 }
+	}
 }
 
 void CMFCApplicationView::OnViewSaveasimage()
@@ -298,6 +308,124 @@ void CMFCApplicationView::OnViewSaveasimage()
 		memDC.SelectObject(pOldBitmap);
 		ReleaseDC(pDC);
 	}
+}
+
+void FlipCImageHorizontal(CImage& img)
+{
+	if (img.IsNull()) return;
+	int width = img.GetWidth();
+	int height = img.GetHeight();
+
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width / 2; ++x)
+		{
+			COLORREF left = img.GetPixel(x, y);
+			COLORREF right = img.GetPixel(width - 1 - x, y);
+			img.SetPixel(x, y, right);
+			img.SetPixel(width - 1 - x, y, left);
+		}
+	}
+}
+
+void FlipCImageVertical(CImage& img)
+{
+	if (img.IsNull()) return;
+	int width = img.GetWidth();
+	int height = img.GetHeight();
+
+	for (int y = 0; y < height / 2; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			COLORREF top = img.GetPixel(x, y);
+			COLORREF bottom = img.GetPixel(x, height - 1 - y);
+			img.SetPixel(x, y, bottom);
+			img.SetPixel(x, height - 1 - y, top);
+		}
+	}
+}
+
+void CMFCApplicationView::OnFlipHorizontal()
+{
+	CMFCApplicationDoc* pDoc = GetDocument();
+	switch (m_selectedChannel) {
+	case CHANNEL_R:
+		FlipCImageHorizontal(pDoc->m_channelR);
+		break;
+	case CHANNEL_G:
+		FlipCImageHorizontal(pDoc->m_channelG);
+		break;
+	case CHANNEL_B:
+		FlipCImageHorizontal(pDoc->m_channelB);
+		break;
+	default:
+		pDoc->OnImageFlipHorizontal();
+	}
+	Invalidate();
+}
+
+void CMFCApplicationView::OnFlipVertical()
+{
+	CMFCApplicationDoc* pDoc = GetDocument();
+	switch (m_selectedChannel) {
+	case CHANNEL_R:
+		FlipCImageVertical(pDoc->m_channelR);
+		break;
+	case CHANNEL_G:
+		FlipCImageVertical(pDoc->m_channelG);
+		break;
+	case CHANNEL_B:
+		FlipCImageVertical(pDoc->m_channelB);
+		break;
+	default:
+		pDoc->OnImageFlipVertical();
+	}
+	Invalidate();
+}
+
+
+//소켓 작업
+
+void CMFCApplicationView::OnAccept()
+{
+	AfxMessageBox(_T("OnAccept 호출됨!"));
+	m_serverSocket.Accept(m_clientSocket);
+	m_clientSocket.SetNotifyWnd(this->m_hWnd);
+}
+
+LRESULT CMFCApplicationView::OnSocketTrigger(WPARAM, LPARAM lParam)
+{
+	CString* pStr = (CString*)lParam;
+	AfxMessageBox(_T("받은 메시지: ") + *pStr); // ★★확인용
+
+	if (*pStr == _T("R") || *pStr == _T("CHANNEL_R")) {
+		m_selectedChannel = CHANNEL_R;
+		GetDocument()->ExtractRGBChannel('R');
+		Invalidate();
+	}
+	else if (*pStr == _T("G") || *pStr == _T("CHANNEL_G")) {
+		m_selectedChannel = CHANNEL_G;
+		GetDocument()->ExtractRGBChannel('G');
+		Invalidate();
+	}
+	else if (*pStr == _T("B") || *pStr == _T("CHANNEL_B")) {
+		m_selectedChannel = CHANNEL_B;
+		GetDocument()->ExtractRGBChannel('B');
+		Invalidate();
+	}
+	else {
+		AfxMessageBox(_T("알 수 없는 명령: ") + *pStr);
+	}
+	delete pStr;
+	return 0;
+}
+
+
+void CMFCApplicationView::OnInitialUpdate()
+{
+	CView::OnInitialUpdate();
+	m_serverSocket.SetNotifyWnd(this->m_hWnd);  // ★ 반드시 여기에!
 }
 
 

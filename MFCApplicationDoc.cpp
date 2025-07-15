@@ -1,5 +1,4 @@
-﻿
-// MFCApplicationDoc.cpp: CMFCApplicationDoc 클래스의 구현
+﻿// MFCApplicationDoc.cpp: CMFCApplicationDoc 클래스의 구현
 //
 
 #include "pch.h"
@@ -11,6 +10,7 @@
 #endif
 
 #include "MFCApplicationDoc.h"
+#include "MFCApplicationView.h"
 
 #include <propkey.h>
 
@@ -79,7 +79,7 @@ void CMFCApplicationDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 	CString strText = _T("TODO: implement thumbnail drawing here");
 	LOGFONT lf;
 
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
 	lf.lfHeight = 36;
 
@@ -110,7 +110,7 @@ void CMFCApplicationDoc::SetSearchContent(const CString& value)
 	}
 	else
 	{
-		CMFCFilterChunkValueImpl *pChunk = nullptr;
+		CMFCFilterChunkValueImpl* pChunk = nullptr;
 		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
 		if (pChunk != nullptr)
 		{
@@ -146,6 +146,18 @@ BOOL CMFCApplicationDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (FAILED(hr)) {
 		AfxMessageBox(_T("이미지 로드 실패"));
 		return FALSE;
+	}
+	if (!m_channelR.IsNull()) m_channelR.Destroy();
+	if (!m_channelG.IsNull()) m_channelG.Destroy();
+	if (!m_channelB.IsNull()) m_channelB.Destroy();
+
+	POSITION pos = GetFirstViewPosition();
+	while (pos != NULL) {
+		CView* pView = GetNextView(pos);
+		CMFCApplicationView* pMyView = dynamic_cast<CMFCApplicationView*>(pView);
+		if (pMyView) {
+			pMyView->m_selectedChannel = CMFCApplicationView::CHANNEL_ORG;
+		}
 	}
 
 	UpdateAllViews(NULL); // 화면 갱신 요청

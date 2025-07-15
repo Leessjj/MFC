@@ -4,6 +4,7 @@
 #pragma once
 
 #include <vector>  // 추가
+#include "MySocket.h"
 
 class CMFCApplicationView : public CView
 {
@@ -11,9 +12,12 @@ protected: // serialization에서만 만들어집니다.
     CMFCApplicationView() noexcept;
     DECLARE_DYNCREATE(CMFCApplicationView)
 
+
+    CMySocket m_serverSocket;  // 서버 소켓
+    CMySocket m_clientSocket;  // 연결된 소켓 (클라이언트)
+
     // 채널 타입
-    enum ChannelType { CHANNEL_ORG, CHANNEL_R, CHANNEL_G, CHANNEL_B };
-    ChannelType m_selectedChannel = CHANNEL_ORG;
+
 
     // 그림판 도형 타입
     enum DrawType { DRAW_NONE, DRAW_LINE, DRAW_RECT, DRAW_ELLIPSE };
@@ -35,6 +39,8 @@ protected: // serialization에서만 만들어집니다.
     // 특성입니다.
 public:
     CMFCApplicationDoc* GetDocument() const;
+    enum ChannelType { CHANNEL_ORG, CHANNEL_R, CHANNEL_G, CHANNEL_B };
+    ChannelType m_selectedChannel = CHANNEL_ORG;
 
     // 작업입니다.
 public:
@@ -43,6 +49,8 @@ public:
 public:
     virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
     virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
+    virtual void OnInitialUpdate();
 protected:
     virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
     virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
@@ -78,6 +86,14 @@ public:
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
     afx_msg void OnViewSaveasimage();
+
+    afx_msg void OnFlipHorizontal();
+    afx_msg void OnFlipVertical();
+
+    //소켓 관련코드
+    afx_msg LRESULT OnSocketTrigger(WPARAM, LPARAM);
+    afx_msg void OnAccept();
+
 };
 
 #ifndef _DEBUG  // MFCApplicationView.cpp의 디버그 버전
